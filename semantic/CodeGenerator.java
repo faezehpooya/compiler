@@ -35,7 +35,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
 
     private void addLlvmCode(String line){
         llvmCode.add(line);
-//        System.out.println(line);
     }
 
     private void setLlvmTypes(){
@@ -176,21 +175,12 @@ public class CodeGenerator implements syntax.CodeGenerator {
     public void doSemantic(String sem) {
         Boolean debug = true;
         String llvmLine = "";
-//        System.out.println("_____________________________" + currentSymbolTable.symbolList);
 
 
         Iterator iteratorVals = semanticStack.iterator();
-//        System.out.println("_____________________________" + semanticStack);
-//        while (iteratorVals.hasNext()) {
-//            if (iteratorVals instanceof SymbolEntity){
-//                System.out.println("Symbol **"+((SymbolEntity) iteratorVals).name);
-//            }
-//            else {
-//                System.out.println(iteratorVals.next());
-//            }
-//        }
 
         switch (sem) {
+                
             case "pushFuncName":
                 if(debug){
                     System.out.println("CG: pushFuncName");
@@ -204,14 +194,15 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 currentSymbolTable = funcSymbolTable;
                 semanticStack.push((String)lexical.currentToken().getValue());
                 break;
+                
             case "pushId":
                 if(debug){
                     System.out.println("CG: pushId");
                 }
                 SymbolEntity entity = new SymbolEntity((String) lexical.currentToken().getValue());
-//                currentSymbolTable.add(entity);
                 semanticStack.push(entity);
                 break;
+                
             case "pushConst":
                 if(debug){
                     System.out.println("CG: pushConst");
@@ -234,6 +225,7 @@ public class CodeGenerator implements syntax.CodeGenerator {
                     semanticStack.push(foundSymbol);
                 }
                 break;
+                
             case "pushType":
                 if(debug){
                     System.out.println("CG: pushType");
@@ -248,15 +240,13 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 boolean found = currentSymbolTable.find((String) lexical.currentToken().getValue());
                 if (!found){
                     entity = new SymbolEntity((String) lexical.currentToken().getValue());
-//                    SymbolEntity s = new SymbolEntity((String) lexical.currentToken().getValue());
-//                    semanticStack.push(s);
                 }
                 else {
                     entity = (SymbolEntity) currentSymbolTable.findSymbol((String) lexical.currentToken().getValue());
                 }
-//                currentSymbolTable.add(entity);
                 semanticStack.push(entity);
                 break;
+                
             case "alloca":
                 if(debug){
                     System.out.println("CG: alloca");
@@ -270,7 +260,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 id.type = type;
                 if(type.equals("string")){
                     System.out.println("goz nakhor");
-//                    llvmLine += "%" + id.name + " = alloca i8 , align 1 \n";
                 }
                 else {
                     llvmLine += "%" + id.name + " = alloca " + llvmTypes.get(id.type) + ", align " + llvmAlign.get(id.type) + "\n";
@@ -286,12 +275,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 }
                 semanticStack.push(id_asssign);
                 break;
-
-
-
-
-
-
 
             case "assignment":
                 if(debug){
@@ -462,46 +445,8 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 llvmLine += "store " + llvmTypes.get(type_id) + " " + value + ", " + llvmTypes.get(type_id) + "* %" + id.name + ", align " + llvmAlign.get(type_id) + "\n";
                 addLlvmCode(llvmLine);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 break;
+                
             case "array":
                 if(debug){
                     System.out.println("CG: array");
@@ -525,11 +470,9 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 }
                 SymbolEntity arrayid = (SymbolEntity) semanticStack.pop();
                 array.name = arrayid.name;
-//                semanticStack.push(array);
                 llvmLine += "%" + array.name + " = alloca " + dimString + " , align " + llvmAlign.get(array.type) ;
                 addLlvmCode(llvmLine);
                 currentSymbolTable.add(array);
-
                 break;
 
             case "arrayAddress":
@@ -557,7 +500,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 topStack = (SymbolEntity) semanticStack.pop();
                 System.out.println(((SymbolEntity) topStack).name);
                 varName = ((SymbolEntity) topStack).name;
-//                System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^6" + dimension);
                 ArrayList<Integer> new_dimention = new ArrayList<>();
                 for (int i = ((SymbolEntity) topStack).dimention.size() - 1; i >=0; i--){
                     new_dimention.add(((SymbolEntity) topStack).dimention.get(i));
@@ -576,19 +518,15 @@ public class CodeGenerator implements syntax.CodeGenerator {
                     varName = "arrayidx" + llvmRegNum;
                     llvmRegNum += 1;
                 }
-//                llvmLine += "%t" + llvmRegNum + " = load " + llvmTypes.get(((SymbolEntity) topStack).arrayElementType) + ", " +
-//                        llvmTypes.get(((SymbolEntity) topStack).arrayElementType) + "* " + varName + ", align " + llvmAlign.get(((SymbolEntity) topStack).arrayElementType) + "\n";
-
                 SymbolEntity resultArr = new SymbolEntity(varName);
                 resultArr.type = ((SymbolEntity) topStack).arrayElementType;
                 resultArr.isPointer = true;
                 semanticStack.push(resultArr);
                 addLlvmCode(llvmLine);
-
                 break;
 
 
-            //*********** function related
+            //*********** function related ***********// 
             case "setFuncArg":
                 if(debug){
                     System.out.println("CG: setFuncArg");
@@ -621,6 +559,7 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 llvmLine += "entry"+(llvmRegNum) + ": \n";
                 addLlvmCode(llvmLine);
                 break;
+                
             case "endFunc":
                 if(debug){
                     System.out.println("CG: endFunc");
@@ -628,6 +567,7 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 llvmLine += "}";
                 addLlvmCode(llvmLine);
                 break;
+                
             case "return":
                 if(debug){
                     System.out.println("CG: return");
@@ -644,6 +584,7 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 }
                 addLlvmCode(llvmLine);
                 break;
+                
             case "pushVoid":
                 if(debug){
                     System.out.println("CG: pushVoid");
@@ -660,10 +601,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 SymbolEntity functionName = (SymbolEntity) semanticStack.pop();
                 if (functionName.name.equals("write")) {
                     if (arg instanceof SymbolEntity) {
-//                        if (((SymbolEntity) arg).value == null) {
-//                            System.out.println("The input parameter is not defined.\n");
-//                            // end program.
-//                        }
                         if (!((SymbolEntity) arg).type.equals("String")) {
                             varName = ((SymbolEntity) arg).name;
                             if(currentSymbolTable.find(((SymbolEntity) arg).name)) {
@@ -697,15 +634,10 @@ public class CodeGenerator implements syntax.CodeGenerator {
                             String v = (String) ((SymbolEntity) arg).value;
                             String line = "@.str." + llvmRegNum + " = private unnamed_addr constant [" + (v.length() + 1) + " x i8] c\"" + ((SymbolEntity) arg).value + "\\00\", align 1";
                             llvmCode.add(0, line);
-//                            llvmLine += "%t" + llvmRegNum + " = load " + llvmTypes.get(((SymbolEntity) arg).type) + " , " + llvmTypes.get(((SymbolEntity) arg).type) +
-//                                    "* " + " %" + ((SymbolEntity) arg).name + ", align 1 \n";
-//                            llvmLine += "%conv" + llvmRegNum + " = sext i8 " + "%t" + llvmRegNum +  " to i32\n";
                             llvmRegNum += 1;
                             llvmLine += "%call" + llvmRegNum + " = " + "call i32 (i8*, ...) @printf(i8* getelementptr inbounds " +
                                     "([3 x i8], [3 x i8]* @.str.fuck.2, i32 0, i32 0), i8* getelementptr inbounds ([" + (v.length() + 1) +
                                     "x i8], [" + (v.length() + 1) + "x i8]* @.str." + (llvmRegNum - 1) + ", i32 0, i32 0))" + "\n";
-//                            llvmLine += "%call" + llvmRegNum + " = " + "call i32 (i8*, ...) @printf(i8* getelementptr inbounds " +
-//                                    "([3 x i8], [3 x i8]* @.str.fuck.1, i32 0, i32 0), i32 %conv" + (llvmRegNum - 1) + ") \n";
                             llvmRegNum += 1;
                             addLlvmCode(llvmLine);
                         }
@@ -724,7 +656,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 }
                 else if (functionName.name.equals("read")) {
                     if (arg instanceof SymbolEntity) {
-
                         if (!((SymbolEntity) arg).type.equals("string")){
                             String fuckNum = "";
                             if( ((SymbolEntity) arg).type.equals("char")){
@@ -735,7 +666,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                             }
                             llvmLine += "%call" + llvmRegNum + " = " + "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds " +
                                     "([3 x i8], [3 x i8]* @.str.fuck" + fuckNum + ", i32 0, i32 0), " + llvmTypes.get(((SymbolEntity) arg).type) +"* %" + ((SymbolEntity) arg).name +") \n";
-
                         }
                         else {
                             String fuckNum = ".2";
@@ -752,14 +682,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 }
                 else if (functionName.name.equals("strlen")) {
                     if (arg instanceof SymbolEntity) {
-//                        if(((SymbolEntity) arg).value != null) {
-//                            String line = "@.main.s" + llvmRegNum + " = private unnamed_addr constant [" + ((SymbolEntity) arg).dimention + " x i8] c\"" + ((SymbolEntity) arg).value + "\\00\", align 1";
-//                            llvmCode.add(0, line);
-//
-//                            llvmLine += "t" + llvmRegNum + " bitcast [" + ((SymbolEntity) arg).dimention + " x i8]* %s to i8*\n";
-//                            llvmLine += "call void @llvm.memcpy.p0i8.p0i8.i64(i8* %0, i8* getelementptr inbounds " + "([" + ((SymbolEntity) arg).dimention + " x i8], [ " +
-//                                    ((SymbolEntity) arg).dimention + " x i8]* @.main.s" + llvmRegNum + ", i32 0, i32 0), " + llvmTypes.get(((SymbolEntity) arg).type) + " " + ((SymbolEntity) arg).dimention + ", i32 1, i1 false %) \n";
-//                        }
                         llvmLine += "%arraydecay" + llvmRegNum + " = " + "getelementptr inbounds " + "[" + (((String) (((SymbolEntity) arg).value)).length() + 1) + " x i8], [" + (((String) (((SymbolEntity) arg).value)).length() + 1) + " x i8]* %" + ((SymbolEntity) arg).name + ", i32 0, i32 0\n";
                         llvmLine += "%call" + llvmRegNum + " = call i64 @strlen(i8* %arraydecay" + llvmRegNum + ")\n";
                         llvmLine += "%conv" + llvmRegNum + " = trunc i64 %call" + llvmRegNum + " to i32\n";
@@ -767,7 +689,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                         llvmRegNum += 1;
                         convReg.type = "integer";
                         semanticStack.push(convReg);
-
                     }
                     else {
                         semanticStack.push(((String) arg).length() + "");
@@ -775,8 +696,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                     addLlvmCode(llvmLine);
 
                 }
-
-
                 break;
 
             //start of while
@@ -832,14 +751,13 @@ public class CodeGenerator implements syntax.CodeGenerator {
                             }
                         }
                     }
-
                 }
 
                 llvmLine += "br i1 " + condition + ", label %while.body" + whileLabelNum + ", label %while.end" + whileLabelNum + " \n";
                 llvmLine += "while.body" + whileLabelNum + ":  \n";
                 addLlvmCode(llvmLine);
-
                 break;
+                
             case "jumpToWhileCond":
                 if(debug){
                     System.out.println("CG: jumpToWhileCond");
@@ -847,6 +765,7 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 llvmLine += "br label %while.cond" + whileLabelNum  + " \n";
                 addLlvmCode(llvmLine);
                 break;
+                
             case "pushWhile.condLine":
                 if(debug){
                     System.out.println("CG: pushWhile.condLine");
@@ -857,13 +776,11 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 if(debug){
                     System.out.println("CG: addLabelWhileEnd");
                 }
-//                llvmLine += "br label %while.cond" + whileLabelNum + " \n";
                 llvmLine += "while.end" + whileLabelNum + ": ";
                 addLlvmCode(llvmLine);
                 whileLabelNum -= 10;
                 break;
-
-
+                
             case "chooseToJumpIf":
                 if(debug){
                     System.out.println("CG: chooseToJumpIf");
@@ -910,13 +827,11 @@ public class CodeGenerator implements syntax.CodeGenerator {
                             }
                         }
                     }
-
                 }
                 ifLableNum += 10;
                 llvmLine += "br i1 " + condition + ", label %if.then" + ifLableNum + ", label %if.else" + ifLableNum + " \n";
                 llvmLine += "if.then" + ifLableNum + ":  \n";
                 addLlvmCode(llvmLine);
-
                 break;
 
             case "jumpToEndIf":
@@ -934,6 +849,7 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 llvmLine += "if.else" + ifLableNum + ":  \n";
                 addLlvmCode(llvmLine);
                 break;
+                
             case "addLabelEndIf":
                 if(debug){
                     System.out.println("CG: addLabelEndif");
@@ -987,7 +903,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                     if (((SymbolEntity) first).type.equals("real")) {
                         flag = 1;
                     }
-//                    varName_1 = "%" + varName_1;
                 } else {
                     varName_1 = (String) first;
                     if (varName_1.equals("true")){
@@ -1012,7 +927,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                     if (((SymbolEntity) second).type.equals("real")) {
                         flag = 1;
                     }
-//                    varName_2 = "%" + varName_2;
                 } else {
                     varName_2 = (String) second;
                     if (varName_2.equals("true")){
@@ -1064,8 +978,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 semanticStack.push(resultSymbol);
 
                 break;
-
-
 
             case "add":
             case "sub":
@@ -1125,7 +1037,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                         System.out.println("Illegal Type of operands." + first.getClass());
                     }
                 }
-
                 if (second instanceof SymbolEntity){
                     SymbolEntity secondSymbol = (SymbolEntity) second;
                     secondVar = "%" + secondSymbol.name;
@@ -1191,34 +1102,23 @@ public class CodeGenerator implements syntax.CodeGenerator {
                         }
                     }
                 }
-
-
+                
                 if (!(first instanceof SymbolEntity)  && !(second instanceof SymbolEntity)){
                     int intResult = 0;
                     if(sem.equals("add")){
                         intResult = Integer.parseInt(firstVar) + Integer.parseInt(secondVar);
-//                        llvmLine += "%t" + llvmRegNum + " = add nsw " + llvmTypes.get("integer") +
-//                                " " + firstVar + "," +  " " + secondVar + "\n";
                     }
                     else if (sem.equals("sub")){
                         intResult = Integer.parseInt(firstVar) - Integer.parseInt(secondVar);
-//                        llvmLine += "%t" + llvmRegNum + " = sub nsw " + llvmTypes.get("integer") +
-//                                " " + firstVar + "," +  " " + secondVar + "\n";
                     }
                     else if (sem.equals("mult")){
                         intResult = Integer.parseInt(firstVar) * Integer.parseInt(secondVar);
-//                        llvmLine += "%t" + llvmRegNum + " = mul nsw " + llvmTypes.get("integer") +
-//                                " " + firstVar + "," +  " " + secondVar + "\n";
                     }
                     else if (sem.equals("div")){
                         intResult = Integer.parseInt(firstVar) / Integer.parseInt(secondVar);
-//                        llvmLine += "%t" + llvmRegNum + " = sdiv " + llvmTypes.get("integer") +
-//                                " " + firstVar + "," +  " " + secondVar + "\n";
                     }
                     else if (sem.equals("mod")){
                         intResult = Integer.parseInt(firstVar) % Integer.parseInt(secondVar);
-//                        llvmLine += "%t" + llvmRegNum + " = srem " + llvmTypes.get("integer") +
-//                                " " + firstVar + "," +  " " + secondVar + "\n";
                     }
                     semanticStack.push("" + intResult);
                     llvmRegNum += 1;
@@ -1369,18 +1269,13 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 first = semanticStack.pop();
                 second = semanticStack.pop();
                 if (!(first instanceof SymbolEntity) && !(second instanceof SymbolEntity)){
-//                    SymbolEntity resultSymbol = new SymbolEntity("tempResult");
-//                    resultSymbol.type = "Integer";
                     if (!(first.equals("true") || first.equals("false"))) {
                         first = Integer.parseInt((String) first);
                         second = Integer.parseInt((String) second);
                         int intResult;
                         if(sem.equals("bor")){intResult = ((int) first | (int) second);}
                         else{intResult = ((int) first & (int) second);}
-//                        llvmLine += "store " + llvmTypes.get("integer") + " " + intResult + ", " +
-//                                llvmTypes.get("integer") + "*" + " %" + llvmRegNum + ", " + "align 4";
                         semanticStack.push(""+intResult);
-//                        resultSymbol.value = intResult;
                     }
                     else if (first instanceof Long) {
                         long longResult;
@@ -1402,8 +1297,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                     else {
                         System.out.println("Illegal Type of operands." + first.getClass());
                     }
-//                    addLlvmCode(llvmLine);
-//                    semanticStack.push(resultSymbol);
                 }
                 else  {
                     if (first instanceof SymbolEntity) {
@@ -1452,13 +1345,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                         }
                     }
 
-//                    String[] legalTypes = new String[]{"integer", "boolean", "long"};
-//                    List<String> list = Arrays.asList(legalTypes);
-//                    if (!(list.contains(firstSymbol.type) & list.contains(secondSymbol.type))) {
-//                        System.out.println("Illegal Type of operands.");
-//                        //end the program
-//                    }
-
                     SymbolEntity result = new SymbolEntity("tempResult");
                     if(sem.equals("bor")){llvmLine += "%t" + llvmRegNum + " = or " + llvmTypes.get("integer") +
                             " " + firstVar + ", " +  "" + secondVar + "\n";}
@@ -1471,6 +1357,7 @@ public class CodeGenerator implements syntax.CodeGenerator {
                     semanticStack.push(result);
                 }
                 break;
+                
             case "or":
                 if(debug){
                     System.out.println("CG: or");
@@ -1478,8 +1365,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                 first = semanticStack.pop();
                 second = semanticStack.pop();
                 if (!(first instanceof SymbolEntity & second instanceof SymbolEntity)){
-//                    SymbolEntity resultSymbol = new SymbolEntity("tempResult");
-//                    resultSymbol.type = "Integer";
                     boolean result;
                     if(!(first.equals("true") || first.equals("false"))){
                         first = Integer.parseInt((String) first);
@@ -1547,7 +1432,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                     llvmLine += "%lor.ext"+llvmRegNum + " = zext i1 %t"+(llvmRegNum-1) + " to " + llvmTypes.get("integer") + "\n";
                     result.name = "lor.ext"+llvmRegNum;
                     llvmRegNum += 1;
-//
                     addLlvmCode(llvmLine);
                     result.type = "integer";
                     semanticStack.push(result);
@@ -1627,8 +1511,6 @@ public class CodeGenerator implements syntax.CodeGenerator {
                     llvmLine += "%land.ext"+llvmRegNum + " = zext i1 %t"+(llvmRegNum-1) + " to " + llvmTypes.get("integer") + "\n";
                     result.name = "land.ext"+llvmRegNum;
                     llvmRegNum += 1;
-//                    llvmLine += "store " + llvmTypes.get("integer") + " %land.ext"+(llvmRegNum - 1) + ", " +
-//                            llvmTypes.get("integer") + "*" + " %" + result.name + ", " + "align " + llvmAlign.get("integer") + "\n";
                     addLlvmCode(llvmLine);
                     result.type = "integer";
                     semanticStack.push(result);
